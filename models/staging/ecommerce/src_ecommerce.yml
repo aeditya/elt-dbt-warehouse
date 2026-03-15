@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: raw
+    database: ECOMMERCE_DW
+    schema: RAW
+
+    tables:
+      - name: online_retail
+      - name: customers_raw
+        tests:
+          - not_null
+          - unique
+          
+          
+
