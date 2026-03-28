@@ -8,14 +8,20 @@ with
             invoice_no,
             stock_code,
             description as description_details,
-            quantity,
-            TO_TIMESTAMP(invoice_date,'DD-MM-YYYY HH24:MI') as invoice_date,
-            unit_price,
+            sum(quantity) as quantity,
+            min(TO_TIMESTAMP(invoice_date,'DD-MM-YYYY HH24:MI')) as invoice_date,
+            avg(unit_price) as unit_price,
+            sum(quantity * unit_price) as revenue,
             customer_id,
-            country,
-            quantity * unit_price as revenue
+            country
 
         from source
+        group by
+                invoice_no,
+                description_details,
+                stock_code,
+                customer_id,
+                country
 
     )
 
