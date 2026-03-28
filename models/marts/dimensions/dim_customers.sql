@@ -4,6 +4,7 @@ source_dim as (select * from {{ ref('stg_customers') }}),
 
 base as (
     select
+        {{ dbt_utils.generate_surrogate_key(['customer_id']) }} as customer_key,
         customer_id,
         email,
         phone

@@ -1,3 +1,8 @@
+{{ config(
+    materialized = 'incremental',
+    unique_key='invoice_no || product_id'
+)}}
+
 with
 
 source_stg as (select * from  {{ ref('stg_orders')    }}),
@@ -9,8 +14,8 @@ base_ft as (
         o.invoice_no,
         o.invoice_date,
         
-        c.customer_id,
-        p.product_id,
+        c.customer_key,
+        p.product_key,
         
         o.quantity,
         o.unit_price,
@@ -23,8 +28,12 @@ base_ft as (
         on o.customer_id = c.customer_id
     left join dim_products p
         on o.stock_code = p.product_id
+    
+    {% if is_incremental() %}
 
+    where invoice_date > (select max(invoice_date) from {{this}} )
 
+    {% endif %}
 )
 
 select * from base_ft
