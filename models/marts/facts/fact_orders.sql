@@ -11,25 +11,43 @@ dim_cus as (select * from {{ ref('dim_customers') }}),
 
 dim_prd as (select * from {{ ref('dim_products') }}),
 
-base_ft as (
-    select
-        o.invoice_no,
-        o.invoice_date,
+base as (
 
+    select
+        invoice_no,
+        stock_code,
+        customer_id,
+        invoice_date,
+        country,
+        sum(quantity) as quantity,
+        avg(unit_price) as unit_price     
+        from source_stg
+
+        group by 
+        invoice_no,
+        stock_code,
+        customer_id,
+        invoice_date,
+        country
+),
+
+final as (
+    select
+        b.invoice_no,
+        b.invoice_date,
         c.customer_key,
         p.product_key,
+        b.quantity,
+        b.unit_price,
+        b.quantity * b.unit_price as revenue,
+        b.country
 
-        o.quantity,
-        o.unit_price,
-        o.revenue,
-        o.country
-
-    from source_stg as o
+    from base as b
 
     left join dim_cus as c
-        on o.customer_id = c.customer_id
+        on b.customer_id = c.customer_id
     left join dim_prd as p
-        on o.stock_code = p.product_id
+        on b.stock_code = p.product_id
 
     {% if is_incremental() %}
 
@@ -38,4 +56,4 @@ base_ft as (
     {% endif %}
 )
 
-select * from base_ft
+select * from final
