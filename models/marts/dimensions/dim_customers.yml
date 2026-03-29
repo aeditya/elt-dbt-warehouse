@@ -2,10 +2,21 @@ version: 2
 
 models:
   - name: dim_customers
+    description: "Customer dimension table containing customer details"
+
     columns:
-      - name: customer_id
+      - name: customer_key
+        description: "Surrogate key for customer"
         tests:
            - not_null
            - unique
+      - name: customer_id
+        description: "Source system customer id"
+      
+      - name: email
+        description: "customer email address"
+
+      - name: phone
+        description: "customer phone number"  
            
           

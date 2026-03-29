@@ -8,9 +8,11 @@ sources:
     tables:
       - name: online_retail
       - name: customers_raw
-        tests:
-          - not_null
-          - unique
+        columns:
+          - name: customer_id
+            tests: 
+            - not_null
+            - unique
           
           
 

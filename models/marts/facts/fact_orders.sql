@@ -1,30 +1,59 @@
+{{ config(
+    materialized = 'incremental',
+    unique_key= ['invoice_no', 'product_key']
+) }}
+
 with
 
-source_stg as (select * from  {{ ref('stg_orders')    }}),
-dim_cus    as (select * from  {{ ref('dim_customers') }}),
-dim_prd    as (select * from {{ ref('dim_products')   }}),
+source_stg as (select * from {{ ref('stg_orders') }}),
 
-base_ft as (
+dim_cus as (select * from {{ ref('dim_customers') }}),
+
+dim_prd as (select * from {{ ref('dim_products') }}),
+
+base as (
+
     select
-        o.invoice_no,
-        o.invoice_date,
-        
-        c.customer_id,
-        p.product_id,
-        
-        o.quantity,
-        o.unit_price,
-        o.revenue,
-        o.country
-    
-    from source_stg o 
+        invoice_no,
+        stock_code,
+        customer_id,
+        invoice_date,
+        country,
+        sum(quantity) as quantity,
+        avg(unit_price) as unit_price     
+        from source_stg
 
-    left join dim_cus c 
-        on o.customer_id = c.customer_id
-    left join dim_products p
-        on o.stock_code = p.product_id
+        group by 
+        invoice_no,
+        stock_code,
+        customer_id,
+        invoice_date,
+        country
+),
 
+final as (
+    select
+        b.invoice_no,
+        b.invoice_date,
+        c.customer_key,
+        p.product_key,
+        b.quantity,
+        b.unit_price,
+        b.quantity * b.unit_price as revenue,
+        b.country
 
+    from base as b
+
+    left join dim_cus as c
+        on b.customer_id = c.customer_id
+    left join dim_prd as p
+        on b.stock_code = p.product_id
+
+    {% if is_incremental() %}
+
+        where invoice_date > (select max(invoice_date) from {{ this }})
+
+    {% endif %}
 )
 
-select * from base_ft
+select * from final

@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: fact_orders
+    description: "Fact table containing order level transaction data"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+                - invoice_no
+                - product_key
+
+    columns:
+      - name: invoice_no
+        description: "invoice number for the transaction"
+        tests:
+           - not_null
+           
+
+      - name: customer_key
+        description: "Foriegn key to the dim_customers"
+        tests:
+          - relationships:
+              arguments: # <--- Add this level
+                to: ref('dim_customers')
+                field: customer_key
+      
+      - name: product_key
+        description: "foreign key to dim_products"
+        tests:
+          - relationships:
+              arguments: # <--- Add this level
+                to: ref('dim_products')
+                field: product_key
+
+      - name: revenue
+        description: "Total revenue for the row"
+           
+          
