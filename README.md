@@ -1,6 +1,33 @@
-Welcome to your new dbt project!
+Welcome to E-commerce Data Warehouse Project 
 
-### Using the starter project
+# Overview
+
+Bulit an end to end data warehouse using dbt and snowflake on UK retail dataset
+
+# Architecture
+RAW ---->  STAGING  -----> DIMENSIONS ---->  FACT 
+
+# Key-Features
+- Star Schema Modeling
+- Incremental Fact Table
+- Surrogate Keys 
+- Data Quality Testing
+- dbt Lineage Graph 
+
+# Fact Table Grain 
+  Invoice Number + Product 
+
+# Challenges Solved 
+
+- Duplicate records due to source data behaviour 
+- Join explosion due to non-unique dimensions
+- Incorrect incremental behavioue due to wrong grain  
+
+
+# Tech Stack
+- dbt cloud 
+- snowflake
+- GitHub 
 
 Try running the following commands:
 - dbt run
